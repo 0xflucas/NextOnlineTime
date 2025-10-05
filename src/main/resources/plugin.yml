@@ -1,0 +1,19 @@
+name: NextOnlineTime
+version: 1.2.8
+main: com.nextplugins.onlinetime.NextOnlineTime
+load: POSTWORLD
+authors:
+  - Henry_Fabio
+  - Eike
+  - Gabriel Santos
+  - Yuhtin
+  - 0xflucas
+website: https://github.com/NextPlugins
+softdepend:
+  - PlaceholderAPI
+  - ProtocolLib
+  - HolographicDisplays
+commands:
+  tempo:
+    aliases:
+      - tempoonline

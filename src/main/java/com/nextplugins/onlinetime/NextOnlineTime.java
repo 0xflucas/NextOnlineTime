@@ -14,8 +14,6 @@ import com.nextplugins.onlinetime.configuration.ConfigurationManager;
 import com.nextplugins.onlinetime.dao.TimedPlayerDAO;
 import com.nextplugins.onlinetime.listener.registry.ListenerRegistry;
 import com.nextplugins.onlinetime.manager.*;
-import com.nextplugins.onlinetime.npc.manager.NPCManager;
-import com.nextplugins.onlinetime.npc.runnable.NPCRunnable;
 import com.nextplugins.onlinetime.parser.ItemParser;
 import com.nextplugins.onlinetime.placeholder.PlaceholderRegister;
 import com.nextplugins.onlinetime.registry.InventoryRegistry;
@@ -51,7 +49,6 @@ public final class NextOnlineTime extends JavaPlugin {
 
     private TimedPlayerDAO timedPlayerDAO;
 
-    private NPCManager npcManager;
     private CheckManager checkManager;
     private RewardManager rewardManager;
     private InventoryRegistry inventoryRegistry;
@@ -77,7 +74,6 @@ public final class NextOnlineTime extends JavaPlugin {
         messagesConfig = ConfigurationManager.of("messages.yml").saveDefault().load();
         rewardsConfig = ConfigurationManager.of("rewards.yml").saveDefault().load();
         conversorsConfig = ConfigurationManager.of("conversors.yml").saveDefault().load();
-        npcConfig = ConfigurationManager.of("npc.yml").saveDefault().load();
     }
 
     @Override
@@ -103,7 +99,6 @@ public final class NextOnlineTime extends JavaPlugin {
         sqlConnector = configureSqlProvider(getConfig());
         timedPlayerDAO = new TimedPlayerDAO(new SQLExecutor(sqlConnector));
 
-        npcManager = new NPCManager();
         rewardManager = new RewardManager();
         inventoryRegistry = new InventoryRegistry();
         conversorManager = new ConversorManager(timedPlayerDAO);
@@ -119,7 +114,6 @@ public final class NextOnlineTime extends JavaPlugin {
 
         checkManager.init();
         inventoryRegistry.init();
-        npcManager.init();
 
         val pluginManager = Bukkit.getPluginManager();
         configurePlaceholder(pluginManager);
@@ -135,16 +129,15 @@ public final class NextOnlineTime extends JavaPlugin {
 
         loadTime.stop();
         getLogger().log(Level.INFO, "Plugin inicializado com sucesso. ({0})", loadTime);
+        getLogger().info("");
+        Bukkit.getConsoleSender().sendMessage("§a                          _           ");
+        Bukkit.getConsoleSender().sendMessage("§aForked by 0xflucas");
+        Bukkit.getConsoleSender().sendMessage("§a                          _           ");
     }
 
     @Override
     public void onDisable() {
         Bukkit.getOnlinePlayers().forEach(timedPlayerManager::purge);
-
-        if (npcManager.isEnabled()) {
-            NPCRunnable runnable = (NPCRunnable) npcManager.getRunnable();
-            runnable.clear();
-        }
     }
 
     private void loadCheckItem() {

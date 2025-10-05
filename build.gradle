@@ -1,26 +1,24 @@
 plugins {
     id 'java'
-
-    id 'com.github.johnrengelman.shadow' version '5.0.0'
-    id 'net.minecrell.plugin-yml.bukkit' version '0.3.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
-group 'com.nextplugins'
-version '1.2.8'
+group = 'com.nextplugins'
+version = '1.2.8'
 
-tasks.build.dependsOn('shadowJar')
+sourceCompatibility = '8'
+targetCompatibility = '8'
 
 repositories {
     mavenCentral()
+    maven { url = 'https://jitpack.io' }
+
 
     maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
     maven { url = 'https://oss.sonatype.org/content/groups/public/' }
-
     maven { url = 'https://repo.codemc.org/repository/maven-public' }
     maven { url = 'https://nexus.scarsz.me/content/groups/public/' }
     maven { url = 'https://repo.nickuc.com/maven2/' }
-
-    maven { url = 'https://jitpack.io/' }
 }
 
 dependencies {
@@ -29,49 +27,43 @@ dependencies {
     compileOnly 'com.gmail.filoghost.holographicdisplays:holographicdisplays-api:2.4.0'
     compileOnly 'com.nickuc.chat:nchat-api:4.2'
 
-    implementation 'com.github.juliarn:npc-lib:2.6-RELEASE'
     implementation 'com.github.Yuhtin:update-checker:1.2'
     implementation 'com.github.HenryFabio:inventory-api:2.0.3'
     implementation 'com.github.HenryFabio:sql-provider:9561f20fd2'
     implementation 'de.tr7zw:item-nbt-api:2.10.0'
 
-    def lombok = "org.projectlombok:lombok:1.18.24"
-    compileOnly lombok
-    annotationProcessor lombok
+    compileOnly "org.projectlombok:lombok:1.18.42"
+    annotationProcessor "org.projectlombok:lombok:1.18.42"
 }
 
-bukkit {
-    main = 'com.nextplugins.onlinetime.NextOnlineTime'
-    authors = ['Henry_Fabio', 'Eike', 'Gabriel Santos', 'Yuhtin']
-    website = 'https://github.com/NextPlugins'
-    version = "${project.version}"
-    apiVersion = "1.13"
-    load = 'POSTWORLD'
-    softDepend = ['PlaceholderAPI', 'ProtocolLib', 'HolographicDisplays']
-
-    commands {
-        tempo {
-            aliases = ['tempoonline']
-        }
-    }
-}
 
 shadowJar {
-    archiveName("${project.name}-${project.version}.jar")
+    archiveFileName.set("${project.name}-${project.version}.jar")
 
     relocate 'com.yuhtin.updatechecker', 'com.nextplugins.onlinetime.libs.updatechecker'
     relocate 'com.henryfabio.minecraft.inventoryapi', 'com.nextplugins.onlinetime.libs.inventoryapi'
-
     relocate 'com.henryfabio.sqlprovider', 'com.nextplugins.onlinetime.libs.sqlprovider'
     relocate 'com.zaxxer.hikari', 'com.nextplugins.onlinetime.libs.hikari'
-
     relocate 'de.tr7zw.changeme.nbtapi', 'com.nextplugins.onlinetime.libs.nbtapi'
     relocate 'de.tr7zw.annotations', 'com.nextplugins.onlinetime.libs.annotations'
 }
 
-compileJava {
-    options.encoding = "UTF-8"
+// Desabilita o jar padrão
+tasks.jar {
+    enabled = false
+}
 
-    sourceCompatibility = "1.8"
-    targetCompatibility = "1.8"
+// Copia o plugin automaticamente para a pasta do servidor
+tasks.register('copyPlugin', Copy) {
+    dependsOn(tasks.named('shadowJar'))
+    from(tasks.named('shadowJar').flatMap { it.archiveFile })
+    into 'C:/Users/lucas/Desktop/redevex.com.br/plugins'
+    rename { "${project.name}-${project.version}.jar" }
+    exclude '**/*.lck'
+    doNotTrackState("Plugin folder may contain locked files")
+}
+
+// build depende da copyPlugin
+tasks.build {
+    dependsOn(tasks.named('copyPlugin'))
 }
